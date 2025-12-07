@@ -45,6 +45,9 @@
         </div>
       </div>
       <div class="flex gap-2">
+        <button id="btn-performa" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
+          📊 Report Performa
+        </button>
         <button id="btn-kontak-ga" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
           📞 Kontak GA
         </button>
@@ -90,7 +93,20 @@
       🏪 MODE OUTLET
     </button>
     <button id="btn-maintenance" class="flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600">
-      🔧 MODE MAINTENANCE
+      🔒 MODE MAINTENANCE (LOGIN)
+    </button>
+  </div>
+
+  <!-- HUB Tabs -->
+  <div id="hub-tabs" class="hidden bg-white rounded-xl shadow-lg p-2 mb-6 flex items-center gap-2">
+    <button id="btn-hub-all" class="flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white">
+      📍 SEMUA HUB
+    </button>
+    <button id="btn-hub-sby" class="flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600">
+      📍 SURABAYA RAYA (33)
+    </button>
+    <button id="btn-hub-tgr" class="flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600">
+      📍 TANGERANG (8)
     </button>
   </div>
 
@@ -115,6 +131,88 @@
   <div id="reports-container"></div>
   <div class="text-center py-6 text-sm text-slate-600">
     <p id="status-text">Menghubungkan ke server...</p>
+  </div>
+</div>
+
+<!-- Modal Password -->
+<div id="modal-password" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-md w-full">
+    <div class="gradient-bg p-6 rounded-t-2xl text-white">
+      <h2 class="text-xl font-bold">🔒 MODE MAINTENANCE - LOGIN</h2>
+    </div>
+    <div class="p-6">
+      <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 mb-4">
+        <p class="font-bold text-yellow-900">⚠️ HANYA UNTUK TIM GA</p>
+        <p class="text-sm text-yellow-700">Masukkan password untuk akses Mode Maintenance</p>
+      </div>
+      <form id="form-password" class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold mb-2">Password GA:</label>
+          <input type="password" id="input-password" required placeholder="Masukkan password..." 
+            class="w-full p-4 border-2 border-blue-300 rounded-xl font-bold text-lg focus:border-blue-500 focus:outline-none" />
+        </div>
+        <div class="flex gap-3">
+          <button type="button" id="btn-cancel-password" class="flex-1 py-3 border-2 rounded-xl font-bold">Batal</button>
+          <button type="submit" class="flex-1 py-3 gradient-bg text-white rounded-xl font-bold shadow-lg">Login</button>
+        </div>
+      </form>
+      <div class="mt-4 text-xs text-slate-500 text-center">
+        <p>Lupa password? Hubungi IT Support</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Performa -->
+<div id="modal-performa" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+  <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">📊 REPORT PERFORMA MAINTENANCE</h2>
+      <button id="btn-close-performa" class="text-2xl">✕</button>
+    </div>
+    <div class="p-6">
+      <!-- Performa Summary -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
+          <div class="text-xs font-bold text-blue-700">AVG RESPONSE TIME</div>
+          <div id="perf-response" class="text-3xl font-black text-blue-900">-</div>
+          <div class="text-xs text-slate-600">Rata-rata waktu tinjau</div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-xl border-2 border-green-200">
+          <div class="text-xs font-bold text-green-700">AVG COMPLETION TIME</div>
+          <div id="perf-completion" class="text-3xl font-black text-green-900">-</div>
+          <div class="text-xs text-slate-600">Rata-rata waktu selesai</div>
+        </div>
+        <div class="bg-amber-50 p-4 rounded-xl border-2 border-amber-200">
+          <div class="text-xs font-bold text-amber-700">ON TIME RATE</div>
+          <div id="perf-ontime" class="text-3xl font-black text-amber-900">-</div>
+          <div class="text-xs text-slate-600">Persentase tepat waktu</div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-xl border-2 border-red-200">
+          <div class="text-xs font-bold text-red-700">OVERDUE</div>
+          <div id="perf-overdue" class="text-3xl font-black text-red-900">-</div>
+          <div class="text-xs text-slate-600">Laporan terlambat</div>
+        </div>
+      </div>
+
+      <!-- Performa by HUB -->
+      <div class="mb-6">
+        <h3 class="font-bold text-lg mb-3">📍 Performa by HUB</h3>
+        <div id="performa-hub" class="grid grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Performa by Category -->
+      <div class="mb-6">
+        <h3 class="font-bold text-lg mb-3">🔧 Performa by Kategori</h3>
+        <div id="performa-category"></div>
+      </div>
+
+      <!-- Detail Table -->
+      <div>
+        <h3 class="font-bold text-lg mb-3">📋 Detail Laporan</h3>
+        <div id="performa-table" class="overflow-x-auto"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -293,7 +391,7 @@
 </div>
 
 <script>
-// =============== GANTI CONFIG INI DENGAN PUNYA BAPAK ===============
+// =============== GANTI CONFIG INI ===============
 const config = {
  apiKey: "AIzaSyBBTZ7xI32HYHLB5ac8NVWYYv9MjNDEhlk",
   authDomain: "laritta-perbaikan-outlet.firebaseapp.com",
@@ -303,7 +401,10 @@ const config = {
   appId: "1:323244861830:web:c76a20edeeae96cd8d2407",
   measurementId: "G-M6ZSQ8GQYY"
 };
-// ===================================================================
+// ================================================
+
+// PASSWORD GA (GANTI SESUAI KEINGINAN)
+const GA_PASSWORD = "GA2025";
 
 firebase.initializeApp(config);
 const db = firebase.firestore();
@@ -363,6 +464,8 @@ let TEKNISI = [];
 let reports = [];
 let viewMode = 'outlet';
 let currentFilter = '';
+let currentHub = 'all';
+let isMaintenanceMode = false;
 
 document.getElementById('input-date').value = new Date().toLocaleDateString('id-ID');
 
@@ -388,6 +491,182 @@ document.getElementById('select-hub').addEventListener('change', (e) => {
   document.getElementById('select-outlet').innerHTML = '<option value="">Pilih...</option>' + 
     OUTLETS.filter(o => o.hub === hub).map(o => `<option value="${o.code}">${o.code} - ${o.name}</option>`).join('');
 });
+
+// Password form
+document.getElementById('form-password').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const password = document.getElementById('input-password').value;
+  if (password === GA_PASSWORD) {
+    isMaintenanceMode = true;
+    document.getElementById('modal-password').classList.add('hidden');
+    document.getElementById('btn-maintenance').className = 'flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white';
+    document.getElementById('btn-outlet').className = 'flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600';
+    document.getElementById('create-btn-container').classList.add('hidden');
+    document.getElementById('filter-container').classList.add('hidden');
+    document.getElementById('hub-tabs').classList.remove('hidden');
+    viewMode = 'maintenance';
+    renderReports();
+    updateStats();
+  } else {
+    alert('❌ Password salah!');
+  }
+  document.getElementById('input-password').value = '';
+});
+
+// HUB Tabs
+document.getElementById('btn-hub-all').addEventListener('click', () => {
+  currentHub = 'all';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+document.getElementById('btn-hub-sby').addEventListener('click', () => {
+  currentHub = 'Surabaya Raya';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+document.getElementById('btn-hub-tgr').addEventListener('click', () => {
+  currentHub = 'Tangerang';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+// Calculate Performance
+function calculatePerformance() {
+  const completed = reports.filter(r => r.status === 'selesai' && r.createdAt && r.updatedAt);
+  
+  if (completed.length === 0) {
+    return {
+      avgResponse: 0,
+      avgCompletion: 0,
+      onTimeRate: 0,
+      overdue: 0
+    };
+  }
+  
+  let totalResponse = 0;
+  let totalCompletion = 0;
+  let onTime = 0;
+  let overdue = 0;
+  
+  completed.forEach(r => {
+    const created = r.createdAt.toDate();
+    const updated = r.updatedAt.toDate();
+    const hours = (updated - created) / (1000 * 60 * 60);
+    
+    totalCompletion += hours;
+    
+    // Target: 24 jam untuk biasa, 12 jam untuk penting, 6 jam untuk darurat
+    const target = r.priority === 'darurat' ? 6 : r.priority === 'penting' ? 12 : 24;
+    if (hours <= target) {
+      onTime++;
+    } else {
+      overdue++;
+    }
+  });
+  
+  return {
+    avgResponse: (totalCompletion / completed.length / 24).toFixed(1),
+    avgCompletion: (totalCompletion / completed.length).toFixed(1),
+    onTimeRate: ((onTime / completed.length) * 100).toFixed(0),
+    overdue: overdue
+  };
+}
+
+// Show Performance
+function showPerformance() {
+  const perf = calculatePerformance();
+  
+  document.getElementById('perf-response').textContent = perf.avgResponse + ' hari';
+  document.getElementById('perf-completion').textContent = perf.avgCompletion + ' jam';
+  document.getElementById('perf-ontime').textContent = perf.onTimeRate + '%';
+  document.getElementById('perf-overdue').textContent = perf.overdue;
+  
+  // By HUB
+  const hubs = ['Surabaya Raya', 'Tangerang'];
+  const hubHtml = hubs.map(hub => {
+    const hubReports = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === hub;
+    });
+    const total = hubReports.length;
+    const selesai = hubReports.filter(r => r.status === 'selesai').length;
+    const rate = total > 0 ? ((selesai / total) * 100).toFixed(0) : 0;
+    
+    return `
+      <div class="bg-white border-2 border-blue-200 rounded-xl p-4">
+        <h4 class="font-bold text-blue-900">${hub}</h4>
+        <div class="mt-2 flex justify-between items-center">
+          <span class="text-sm text-slate-600">Total: ${total}</span>
+          <span class="text-sm text-slate-600">Selesai: ${selesai}</span>
+        </div>
+        <div class="mt-2 bg-slate-200 rounded-full h-3">
+          <div class="bg-blue-600 rounded-full h-3" style="width: ${rate}%"></div>
+        </div>
+        <p class="text-xs text-center mt-1 font-bold">${rate}% completion rate</p>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('performa-hub').innerHTML = hubHtml;
+  
+  // By Category
+  const categories = {
+    ac: 'AC', listrik: 'Listrik', plumbing: 'Plumbing',
+    furniture: 'Furniture', mesin: 'Mesin', bangunan: 'Bangunan',
+    elektronik: 'Elektronik', kebersihan: 'Kebersihan', lainnya: 'Lainnya'
+  };
+  
+  const catHtml = Object.entries(categories).map(([key, label]) => {
+    const catReports = reports.filter(r => r.category === key);
+    return `
+      <div class="flex justify-between items-center py-2 border-b">
+        <span class="font-medium">${label}</span>
+        <span class="text-sm text-slate-600">${catReports.length} laporan</span>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('performa-category').innerHTML = catHtml;
+  
+  // Table
+  const tableHtml = `
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="p-2 text-left">Outlet</th>
+          <th class="p-2 text-left">Judul</th>
+          <th class="p-2 text-left">Status</th>
+          <th class="p-2 text-left">Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${reports.slice(0, 20).map(r => {
+          const time = r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString('id-ID') : '-';
+          return `
+            <tr class="border-b">
+              <td class="p-2">${r.outlet}</td>
+              <td class="p-2">${r.title}</td>
+              <td class="p-2">${r.status}</td>
+              <td class="p-2">${time}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  document.getElementById('performa-table').innerHTML = tableHtml;
+  
+  document.getElementById('modal-performa').classList.remove('hidden');
+}
 
 // Populate
 function populateFilterDropdown() {
@@ -492,9 +771,16 @@ function loadData() {
 
 function updateStats() {
   let filtered = reports;
+  
   if (viewMode === 'outlet' && currentFilter) {
     filtered = reports.filter(r => r.outletCode === currentFilter);
+  } else if (viewMode === 'maintenance' && currentHub !== 'all') {
+    filtered = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === currentHub;
+    });
   }
+  
   document.getElementById('stat-total').textContent = filtered.length;
   document.getElementById('stat-laporan').textContent = filtered.filter(r => r.status === 'laporan').length;
   document.getElementById('stat-ditinjau').textContent = filtered.filter(r => r.status === 'ditinjau').length;
@@ -504,8 +790,14 @@ function updateStats() {
 
 function renderReports() {
   let filtered = reports;
+  
   if (viewMode === 'outlet' && currentFilter) {
     filtered = reports.filter(r => r.outletCode === currentFilter);
+  } else if (viewMode === 'maintenance' && currentHub !== 'all') {
+    filtered = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === currentHub;
+    });
   }
   
   if (filtered.length === 0) {
@@ -530,7 +822,7 @@ function renderReports() {
                       r.status === 'ditinjau' ? '👁️ DITINJAU' : '📝 BARU';
     
     let buttons = '';
-    if (viewMode === 'maintenance') {
+    if (isMaintenanceMode) {
       if (r.status === 'laporan') {
         buttons = `
           <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t">
@@ -605,6 +897,7 @@ document.getElementById('form-report').addEventListener('submit', (e) => {
     reporterName: document.getElementById('input-name').value,
     outlet: `${outlet.code} - ${outlet.name}`,
     outletCode: outlet.code,
+    outletHub: outlet.hub,
     category: document.getElementById('select-category').value,
     priority: document.getElementById('input-priority').value,
     location: document.getElementById('input-location').value,
@@ -625,25 +918,26 @@ document.getElementById('form-report').addEventListener('submit', (e) => {
 
 // Mode
 document.getElementById('btn-outlet').addEventListener('click', () => {
+  isMaintenanceMode = false;
   viewMode = 'outlet';
   document.getElementById('btn-outlet').className = 'flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white';
   document.getElementById('btn-maintenance').className = 'flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600';
   document.getElementById('create-btn-container').classList.remove('hidden');
   document.getElementById('filter-container').classList.remove('hidden');
+  document.getElementById('hub-tabs').classList.add('hidden');
   renderReports();
   updateStats();
 });
 
 document.getElementById('btn-maintenance').addEventListener('click', () => {
-  viewMode = 'maintenance';
-  currentFilter = '';
-  document.getElementById('select-outlet-filter').value = '';
-  document.getElementById('btn-maintenance').className = 'flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white';
-  document.getElementById('btn-outlet').className = 'flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600';
-  document.getElementById('create-btn-container').classList.add('hidden');
-  document.getElementById('filter-container').classList.add('hidden');
-  renderReports();
-  updateStats();
+  if (!isMaintenanceMode) {
+    document.getElementById('modal-password').classList.remove('hidden');
+  }
+});
+
+document.getElementById('btn-cancel-password').addEventListener('click', () => {
+  document.getElementById('modal-password').classList.add('hidden');
+  document.getElementById('input-password').value = '';
 });
 
 document.getElementById('select-outlet-filter').addEventListener('change', (e) => {
@@ -666,6 +960,8 @@ document.getElementById('btn-teknisi').addEventListener('click', () => document.
 document.getElementById('btn-close-teknisi').addEventListener('click', () => document.getElementById('modal-teknisi').classList.add('hidden'));
 document.getElementById('btn-riwayat').addEventListener('click', () => document.getElementById('modal-riwayat').classList.remove('hidden'));
 document.getElementById('btn-close-riwayat').addEventListener('click', () => document.getElementById('modal-riwayat').classList.add('hidden'));
+document.getElementById('btn-performa').addEventListener('click', showPerformance);
+document.getElementById('btn-close-performa').addEventListener('click', () => document.getElementById('modal-performa').classList.add('hidden'));
 
 populateFilterDropdown();
 loadData();
