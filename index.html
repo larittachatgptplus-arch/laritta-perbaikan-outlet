@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laritta Perbaikan Outlet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%); }
+    .card-hover { transition: all 0.3s; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-slate-50">
+
+<!-- Emergency Contact Bar -->
+<div class="gradient-bg text-white py-3 px-4 shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <span class="animate-pulse text-2xl">🚨</span>
+      <span class="font-bold">DARURAT? Hubungi General Affair:</span>
+    </div>
+    <div class="flex gap-3">
+      <a href="tel:+6281234567890" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+        📞 Telp GA
+      </a>
+      <a href="https://wa.me/6281234567890" target="_blank" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+        💬 WhatsApp GA
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="root" class="max-w-7xl mx-auto p-4">
+  <!-- Header with Logo -->
+  <div class="bg-white p-6 rounded-2xl shadow-xl mb-6 border-4 border-red-500">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-6">
+        <div class="text-5xl font-black text-red-600">LaRitta</div>
+        <div>
+          <h1 class="text-3xl font-black text-blue-900">SISTEM PERBAIKAN OUTLET</h1>
+          <p class="text-blue-600 font-medium">Maintenance Management System - 41 Outlet</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button id="btn-performa" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
+          📊 Report Performa
+        </button>
+        <button id="btn-kontak-ga" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
+          📞 Kontak GA
+        </button>
+        <button id="btn-teknisi" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
+          👷 Teknisi
+        </button>
+        <button id="btn-riwayat" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
+          📁 Riwayat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="bg-gradient-to-br from-slate-600 to-slate-700 p-6 rounded-xl text-white shadow-lg">
+        <div class="text-sm font-bold opacity-90">TOTAL LAPORAN</div>
+        <div id="stat-total" class="text-4xl font-black mt-2">0</div>
+      </div>
+      <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white shadow-lg">
+        <div class="text-sm font-bold opacity-90">BARU MASUK</div>
+        <div id="stat-laporan" class="text-4xl font-black mt-2">0</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-500 to-amber-600 p-6 rounded-xl text-white shadow-lg">
+        <div class="text-sm font-bold opacity-90">DITINJAU</div>
+        <div id="stat-ditinjau" class="text-4xl font-black mt-2">0</div>
+      </div>
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white shadow-lg">
+        <div class="text-sm font-bold opacity-90">PERBAIKAN</div>
+        <div id="stat-perbaikan" class="text-4xl font-black mt-2">0</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 rounded-xl text-white shadow-lg">
+        <div class="text-sm font-bold opacity-90">SELESAI</div>
+        <div id="stat-selesai" class="text-4xl font-black mt-2">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="bg-white rounded-xl shadow-lg p-2 mb-6 flex items-center gap-2">
+    <button id="btn-outlet" class="flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white">
+      🏪 MODE OUTLET
+    </button>
+    <button id="btn-maintenance" class="flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600">
+      🔒 MODE MAINTENANCE (LOGIN)
+    </button>
+  </div>
+
+  <!-- HUB Tabs -->
+  <div id="hub-tabs" class="hidden bg-white rounded-xl shadow-lg p-2 mb-6 flex items-center gap-2">
+    <button id="btn-hub-all" class="flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white">
+      📍 SEMUA HUB
+    </button>
+    <button id="btn-hub-sby" class="flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600">
+      📍 SURABAYA RAYA (33)
+    </button>
+    <button id="btn-hub-tgr" class="flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600">
+      📍 TANGERANG (8)
+    </button>
+  </div>
+
+  <!-- Filter -->
+  <div id="filter-container" class="hidden mb-6">
+    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+      <label class="block text-sm font-bold text-blue-900 mb-2">🏪 Pilih Outlet Anda:</label>
+      <select id="select-outlet-filter" class="w-full p-4 border-2 border-blue-300 rounded-lg font-bold text-lg">
+        <option value="">Semua Outlet</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Create Button -->
+  <div id="create-btn-container" class="mb-6">
+    <button id="btn-create" class="w-full gradient-bg text-white px-8 py-5 rounded-2xl font-black text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition">
+      ➕ LAPORKAN KERUSAKAN / PERBAIKAN
+    </button>
+  </div>
+
+  <!-- Reports Grid -->
+  <div id="reports-container"></div>
+  <div class="text-center py-6 text-sm text-slate-600">
+    <p id="status-text">Menghubungkan ke server...</p>
+  </div>
+</div>
+
+<!-- Modal Password -->
+<div id="modal-password" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-md w-full">
+    <div class="gradient-bg p-6 rounded-t-2xl text-white">
+      <h2 class="text-xl font-bold">🔒 MODE MAINTENANCE - LOGIN</h2>
+    </div>
+    <div class="p-6">
+      <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 mb-4">
+        <p class="font-bold text-yellow-900">⚠️ HANYA UNTUK TIM GA</p>
+        <p class="text-sm text-yellow-700">Masukkan password untuk akses Mode Maintenance</p>
+      </div>
+      <form id="form-password" class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold mb-2">Password GA:</label>
+          <input type="password" id="input-password" required placeholder="Masukkan password..." 
+            class="w-full p-4 border-2 border-blue-300 rounded-xl font-bold text-lg focus:border-blue-500 focus:outline-none" />
+        </div>
+        <div class="flex gap-3">
+          <button type="button" id="btn-cancel-password" class="flex-1 py-3 border-2 rounded-xl font-bold">Batal</button>
+          <button type="submit" class="flex-1 py-3 gradient-bg text-white rounded-xl font-bold shadow-lg">Login</button>
+        </div>
+      </form>
+      <div class="mt-4 text-xs text-slate-500 text-center">
+        <p>Lupa password? Hubungi IT Support</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Performa -->
+<div id="modal-performa" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+  <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">📊 REPORT PERFORMA MAINTENANCE</h2>
+      <button id="btn-close-performa" class="text-2xl">✕</button>
+    </div>
+    <div class="p-6">
+      <!-- Performa Summary -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
+          <div class="text-xs font-bold text-blue-700">AVG RESPONSE TIME</div>
+          <div id="perf-response" class="text-3xl font-black text-blue-900">-</div>
+          <div class="text-xs text-slate-600">Rata-rata waktu tinjau</div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-xl border-2 border-green-200">
+          <div class="text-xs font-bold text-green-700">AVG COMPLETION TIME</div>
+          <div id="perf-completion" class="text-3xl font-black text-green-900">-</div>
+          <div class="text-xs text-slate-600">Rata-rata waktu selesai</div>
+        </div>
+        <div class="bg-amber-50 p-4 rounded-xl border-2 border-amber-200">
+          <div class="text-xs font-bold text-amber-700">ON TIME RATE</div>
+          <div id="perf-ontime" class="text-3xl font-black text-amber-900">-</div>
+          <div class="text-xs text-slate-600">Persentase tepat waktu</div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-xl border-2 border-red-200">
+          <div class="text-xs font-bold text-red-700">OVERDUE</div>
+          <div id="perf-overdue" class="text-3xl font-black text-red-900">-</div>
+          <div class="text-xs text-slate-600">Laporan terlambat</div>
+        </div>
+      </div>
+
+      <!-- Performa by HUB -->
+      <div class="mb-6">
+        <h3 class="font-bold text-lg mb-3">📍 Performa by HUB</h3>
+        <div id="performa-hub" class="grid grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Performa by Category -->
+      <div class="mb-6">
+        <h3 class="font-bold text-lg mb-3">🔧 Performa by Kategori</h3>
+        <div id="performa-category"></div>
+      </div>
+
+      <!-- Detail Table -->
+      <div>
+        <h3 class="font-bold text-lg mb-3">📋 Detail Laporan</h3>
+        <div id="performa-table" class="overflow-x-auto"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail -->
+<div id="modal-detail" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">🔍 DETAIL LAPORAN</h2>
+      <button id="btn-close-detail" class="text-2xl">✕</button>
+    </div>
+    <div id="detail-content" class="p-6"></div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div id="modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+  <div class="bg-white rounded-2xl max-w-2xl w-full my-8">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">📝 FORM LAPORAN PERBAIKAN</h2>
+      <button id="btn-close-modal" class="text-2xl">✕</button>
+    </div>
+    <form id="form-report" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Nama Pelapor *</label>
+        <input type="text" id="input-name" required class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">HUB *</label>
+        <select id="select-hub" class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500">
+          <option value="">Pilih HUB...</option>
+          <option value="Surabaya Raya">Surabaya Raya (33 Outlet)</option>
+          <option value="Tangerang">Tangerang (8 Outlet)</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Outlet *</label>
+        <select id="select-outlet" required class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500">
+          <option value="">Pilih outlet...</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Kategori Kerusakan *</label>
+        <select id="select-category" required class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500">
+          <option value="ac">❄️ AC / Pendingin Ruangan</option>
+          <option value="listrik">⚡ Listrik / Kelistrikan</option>
+          <option value="plumbing">💧 Plumbing / Air / Saluran</option>
+          <option value="furniture">🪑 Furniture / Interior</option>
+          <option value="mesin">⚙️ Mesin / Equipment Produksi</option>
+          <option value="bangunan">🏗️ Bangunan / Struktur</option>
+          <option value="elektronik">📺 Elektronik / Peralatan</option>
+          <option value="kebersihan">🧹 Kebersihan / Sanitasi</option>
+          <option value="lainnya">📦 Lainnya</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Tingkat Prioritas *</label>
+        <div class="grid grid-cols-3 gap-3">
+          <button type="button" class="priority-btn p-4 border-2 rounded-xl font-bold border-slate-200" data-priority="biasa">
+            🟢 Biasa
+          </button>
+          <button type="button" class="priority-btn p-4 border-2 rounded-xl font-bold bg-amber-50 border-amber-400" data-priority="penting">
+            🟡 Penting
+          </button>
+          <button type="button" class="priority-btn p-4 border-2 rounded-xl font-bold border-slate-200" data-priority="darurat">
+            🔴 Darurat
+          </button>
+        </div>
+        <input type="hidden" id="input-priority" value="penting" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Judul Kerusakan *</label>
+        <input type="text" id="input-title" required placeholder="Contoh: AC Unit 1 Tidak Dingin" 
+          class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Deskripsi Detail *</label>
+        <textarea id="input-desc" required rows="4" placeholder="Jelaskan kondisi kerusakan secara detail..." 
+          class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none"></textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Lokasi Spesifik di Outlet</label>
+        <input type="text" id="input-location" placeholder="Contoh: Ruang tamu, Dapur, Toilet" 
+          class="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-bold mb-2 text-blue-900">Tanggal Laporan</label>
+        <input type="text" id="input-date" readonly class="w-full p-3 border-2 border-blue-200 rounded-xl bg-slate-100" />
+      </div>
+      
+      <div class="flex gap-3 pt-4 border-t">
+        <button type="button" id="btn-cancel" class="flex-1 py-3 border-2 border-slate-300 rounded-xl font-bold hover:bg-slate-50">Batal</button>
+        <button type="submit" class="flex-1 py-3 gradient-bg text-white rounded-xl font-bold shadow-lg">Kirim Laporan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Kontak GA -->
+<div id="modal-kontak" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-2xl w-full">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">📞 KONTAK GENERAL AFFAIR</h2>
+      <button id="btn-close-kontak" class="text-2xl">✕</button>
+    </div>
+    <div class="p-6">
+      <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+        <p class="font-bold text-red-900 mb-2">⚠️ UNTUK KERUSAKAN DARURAT:</p>
+        <p class="text-sm text-red-700">Segera hubungi tim GA untuk penanganan cepat!</p>
+      </div>
+      <div id="kontak-ga-list" class="space-y-3"></div>
+      <div class="mt-6 pt-6 border-t">
+        <p class="text-sm text-slate-600 mb-3 font-bold">Tambah Kontak GA Baru:</p>
+        <div class="grid grid-cols-2 gap-3">
+          <input type="text" id="input-ga-name" placeholder="Nama GA" class="p-3 border-2 rounded-lg" />
+          <input type="text" id="input-ga-phone" placeholder="No. HP (08xxx)" class="p-3 border-2 rounded-lg" />
+        </div>
+        <button id="btn-add-ga" class="mt-3 w-full py-3 bg-blue-600 text-white rounded-lg font-bold">+ Tambah Kontak</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Teknisi -->
+<div id="modal-teknisi" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">👷 MASTER TEKNISI</h2>
+      <button id="btn-close-teknisi" class="text-2xl">✕</button>
+    </div>
+    <div class="p-6">
+      <div id="teknisi-list" class="space-y-2 mb-4 max-h-96 overflow-y-auto"></div>
+      <div class="flex gap-2 pt-4 border-t">
+        <input type="text" id="input-teknisi-name" placeholder="Nama teknisi..." 
+          class="flex-1 p-3 border-2 rounded-lg focus:border-blue-500 focus:outline-none" />
+        <select id="input-teknisi-skill" class="p-3 border-2 rounded-lg">
+          <option value="ac">AC</option>
+          <option value="listrik">Listrik</option>
+          <option value="plumbing">Plumbing</option>
+          <option value="furniture">Furniture</option>
+          <option value="mesin">Mesin</option>
+          <option value="umum">Umum</option>
+        </select>
+        <button id="btn-add-teknisi" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold">+ Tambah</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Riwayat -->
+<div id="modal-riwayat" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="gradient-bg p-6 rounded-t-2xl flex justify-between text-white">
+      <h2 class="text-xl font-bold">📁 RIWAYAT PERBAIKAN</h2>
+      <button id="btn-close-riwayat" class="text-2xl">✕</button>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <select id="select-riwayat-outlet" class="p-3 border-2 rounded-lg">
+          <option value="">Semua Outlet</option>
+        </select>
+        <select id="select-riwayat-bulan" class="p-3 border-2 rounded-lg">
+          <option value="">Semua Periode</option>
+        </select>
+      </div>
+      <div id="riwayat-container"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============== CONFIG FIREBASE ===============
+const config = {
+  apiKey: "AIzaSyD66JBknPCHDzJ4NcLq3ql7T867TJpTbSY",
+  authDomain: "laritta-operations-system.firebaseapp.com",
+  projectId: "laritta-operations-system",
+  storageBucket: "laritta-operations-system.firebasestorage.app",
+  messagingSenderId: "660263238018",
+  appId: "1:660263238018:web:836be901d1451122867f9b"
+};
+// ================================================
+
+// PASSWORD GA (GANTI SESUAI KEINGINAN)
+const GA_PASSWORD = "GA2025";
+
+firebase.initializeApp(config);
+const db = firebase.firestore();
+const appId = "laritta-perbaikan-v1";
+
+const OUTLETS = [
+  {code:'SBY-001',name:'Barata',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-002',name:'Candi',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-003',name:'Cemengkalang',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-004',name:'Darmahusada',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-005',name:'Darmo Permai',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-006',name:'Deltasari',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-007',name:'Demak',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-008',name:'Diponegoro',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-009',name:'Dukuh Kupang',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-010',name:'Gayung Sari',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-011',name:'Gresik Kota Baru',hub:'Surabaya Raya',area:'Gresik'},
+  {code:'SBY-012',name:'Iskandar Muda',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-013',name:'Kapas Krampung',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-014',name:'Kedung Cowek',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-015',name:'Ketintang',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-016',name:'Krian',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-017',name:'Kutai',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-018',name:'Manukan',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-019',name:'Menganti',hub:'Surabaya Raya',area:'Gresik'},
+  {code:'SBY-020',name:'Mulyosari',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-021',name:'Nias',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-022',name:'Perak',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-023',name:'Rungkut',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-024',name:'Rungkut Tengah',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-025',name:'Sepanjang',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-026',name:'ST. Gubeng',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-027',name:'Sukodono',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-028',name:'Tanggulangin',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-029',name:'Tropodo',hub:'Surabaya Raya',area:'Sidoarjo'},
+  {code:'SBY-030',name:'Wage',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-031',name:'Wiyung',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-032',name:'Bangkalan',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'SBY-033',name:'Panglima Sudirman',hub:'Surabaya Raya',area:'Surabaya'},
+  {code:'TGR-001',name:'Borobudur',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-002',name:'Ciledug',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-003',name:'Halim',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-004',name:'Merdeka',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-005',name:'Periuk',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-006',name:'Poris',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-007',name:'Raden Saleh',hub:'Tangerang',area:'Tangerang'},
+  {code:'TGR-008',name:'Graha Raya',hub:'Tangerang',area:'Tangerang'}
+];
+
+let GA_CONTACTS = [
+  {name: 'General Affair Pusat', phone: '081234567890'},
+  {name: 'GA Surabaya', phone: '081234567891'},
+  {name: 'GA Tangerang', phone: '081234567892'}
+];
+
+let TEKNISI = [];
+let reports = [];
+let viewMode = 'outlet';
+let currentFilter = '';
+let currentHub = 'all';
+let isMaintenanceMode = false;
+
+document.getElementById('input-date').value = new Date().toLocaleDateString('id-ID');
+
+// Priority buttons
+document.querySelectorAll('.priority-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.priority-btn').forEach(b => {
+      b.classList.remove('bg-green-50','bg-amber-50','bg-red-50','border-green-400','border-amber-400','border-red-400');
+      b.classList.add('border-slate-200');
+    });
+    const priority = btn.dataset.priority;
+    if(priority === 'biasa') btn.classList.add('bg-green-50','border-green-400');
+    else if(priority === 'penting') btn.classList.add('bg-amber-50','border-amber-400');
+    else btn.classList.add('bg-red-50','border-red-400');
+    btn.classList.remove('border-slate-200');
+    document.getElementById('input-priority').value = priority;
+  });
+});
+
+// Hub change
+document.getElementById('select-hub').addEventListener('change', (e) => {
+  const hub = e.target.value;
+  document.getElementById('select-outlet').innerHTML = '<option value="">Pilih...</option>' + 
+    OUTLETS.filter(o => o.hub === hub).map(o => `<option value="${o.code}">${o.code} - ${o.name}</option>`).join('');
+});
+
+// Password form
+document.getElementById('form-password').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const password = document.getElementById('input-password').value;
+  if (password === GA_PASSWORD) {
+    isMaintenanceMode = true;
+    document.getElementById('modal-password').classList.add('hidden');
+    document.getElementById('btn-maintenance').className = 'flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white';
+    document.getElementById('btn-outlet').className = 'flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600';
+    document.getElementById('create-btn-container').classList.add('hidden');
+    document.getElementById('filter-container').classList.add('hidden');
+    document.getElementById('hub-tabs').classList.remove('hidden');
+    viewMode = 'maintenance';
+    renderReports();
+    updateStats();
+  } else {
+    alert('❌ Password salah!');
+  }
+  document.getElementById('input-password').value = '';
+});
+
+// HUB Tabs
+document.getElementById('btn-hub-all').addEventListener('click', () => {
+  currentHub = 'all';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+document.getElementById('btn-hub-sby').addEventListener('click', () => {
+  currentHub = 'Surabaya Raya';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+document.getElementById('btn-hub-tgr').addEventListener('click', () => {
+  currentHub = 'Tangerang';
+  document.getElementById('btn-hub-tgr').className = 'flex-1 py-3 rounded-lg font-bold bg-blue-600 text-white';
+  document.getElementById('btn-hub-all').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  document.getElementById('btn-hub-sby').className = 'flex-1 py-3 rounded-lg font-bold bg-slate-100 text-slate-600';
+  renderReports();
+  updateStats();
+});
+
+// Calculate Performance
+function calculatePerformance() {
+  const completed = reports.filter(r => r.status === 'selesai' && r.createdAt && r.updatedAt);
+  
+  if (completed.length === 0) {
+    return {
+      avgResponse: 0,
+      avgCompletion: 0,
+      onTimeRate: 0,
+      overdue: 0
+    };
+  }
+  
+  let totalResponse = 0;
+  let totalCompletion = 0;
+  let onTime = 0;
+  let overdue = 0;
+  
+  completed.forEach(r => {
+    const created = r.createdAt.toDate();
+    const updated = r.updatedAt.toDate();
+    const hours = (updated - created) / (1000 * 60 * 60);
+    
+    totalCompletion += hours;
+    
+    // Target: 24 jam untuk biasa, 12 jam untuk penting, 6 jam untuk darurat
+    const target = r.priority === 'darurat' ? 6 : r.priority === 'penting' ? 12 : 24;
+    if (hours <= target) {
+      onTime++;
+    } else {
+      overdue++;
+    }
+  });
+  
+  return {
+    avgResponse: (totalCompletion / completed.length / 24).toFixed(1),
+    avgCompletion: (totalCompletion / completed.length).toFixed(1),
+    onTimeRate: ((onTime / completed.length) * 100).toFixed(0),
+    overdue: overdue
+  };
+}
+
+// Show Performance
+function showPerformance() {
+  const perf = calculatePerformance();
+  
+  document.getElementById('perf-response').textContent = perf.avgResponse + ' hari';
+  document.getElementById('perf-completion').textContent = perf.avgCompletion + ' jam';
+  document.getElementById('perf-ontime').textContent = perf.onTimeRate + '%';
+  document.getElementById('perf-overdue').textContent = perf.overdue;
+  
+  // By HUB
+  const hubs = ['Surabaya Raya', 'Tangerang'];
+  const hubHtml = hubs.map(hub => {
+    const hubReports = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === hub;
+    });
+    const total = hubReports.length;
+    const selesai = hubReports.filter(r => r.status === 'selesai').length;
+    const rate = total > 0 ? ((selesai / total) * 100).toFixed(0) : 0;
+    
+    return `
+      <div class="bg-white border-2 border-blue-200 rounded-xl p-4">
+        <h4 class="font-bold text-blue-900">${hub}</h4>
+        <div class="mt-2 flex justify-between items-center">
+          <span class="text-sm text-slate-600">Total: ${total}</span>
+          <span class="text-sm text-slate-600">Selesai: ${selesai}</span>
+        </div>
+        <div class="mt-2 bg-slate-200 rounded-full h-3">
+          <div class="bg-blue-600 rounded-full h-3" style="width: ${rate}%"></div>
+        </div>
+        <p class="text-xs text-center mt-1 font-bold">${rate}% completion rate</p>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('performa-hub').innerHTML = hubHtml;
+  
+  // By Category
+  const categories = {
+    ac: 'AC', listrik: 'Listrik', plumbing: 'Plumbing',
+    furniture: 'Furniture', mesin: 'Mesin', bangunan: 'Bangunan',
+    elektronik: 'Elektronik', kebersihan: 'Kebersihan', lainnya: 'Lainnya'
+  };
+  
+  const catHtml = Object.entries(categories).map(([key, label]) => {
+    const catReports = reports.filter(r => r.category === key);
+    return `
+      <div class="flex justify-between items-center py-2 border-b">
+        <span class="font-medium">${label}</span>
+        <span class="text-sm text-slate-600">${catReports.length} laporan</span>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('performa-category').innerHTML = catHtml;
+  
+  // Table
+  const tableHtml = `
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="p-2 text-left">Outlet</th>
+          <th class="p-2 text-left">Judul</th>
+          <th class="p-2 text-left">Status</th>
+          <th class="p-2 text-left">Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${reports.slice(0, 20).map(r => {
+          const time = r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString('id-ID') : '-';
+          return `
+            <tr class="border-b">
+              <td class="p-2">${r.outlet}</td>
+              <td class="p-2">${r.title}</td>
+              <td class="p-2">${r.status}</td>
+              <td class="p-2">${time}</td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  document.getElementById('performa-table').innerHTML = tableHtml;
+  
+  document.getElementById('modal-performa').classList.remove('hidden');
+}
+
+// Populate
+function populateFilterDropdown() {
+  let html = '<option value="">Semua Outlet</option><optgroup label="📍 SURABAYA RAYA">';
+  OUTLETS.filter(o => o.hub === 'Surabaya Raya').forEach(o => {
+    html += `<option value="${o.code}">${o.code} - ${o.name}</option>`;
+  });
+  html += '</optgroup><optgroup label="📍 TANGERANG">';
+  OUTLETS.filter(o => o.hub === 'Tangerang').forEach(o => {
+    html += `<option value="${o.code}">${o.code} - ${o.name}</option>`;
+  });
+  html += '</optgroup>';
+  document.getElementById('select-outlet-filter').innerHTML = html;
+  document.getElementById('select-riwayat-outlet').innerHTML = html;
+}
+
+function loadKontakGA() {
+  const html = GA_CONTACTS.map((ga, i) => `
+    <div class="bg-white border-2 border-blue-200 rounded-xl p-4 flex justify-between items-center">
+      <div>
+        <p class="font-bold text-blue-900">${ga.name}</p>
+        <p class="text-sm text-slate-600">📞 ${ga.phone}</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="tel:+62${ga.phone.substring(1)}" class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-bold">Telp</a>
+        <a href="https://wa.me/62${ga.phone.substring(1)}" target="_blank" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold">WA</a>
+        <button onclick="deleteGA(${i})" class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold">Hapus</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('kontak-ga-list').innerHTML = html;
+}
+
+function deleteGA(index) {
+  if (!confirm('Hapus kontak ini?')) return;
+  GA_CONTACTS.splice(index, 1);
+  loadKontakGA();
+}
+
+document.getElementById('btn-add-ga').addEventListener('click', () => {
+  const name = document.getElementById('input-ga-name').value.trim();
+  const phone = document.getElementById('input-ga-phone').value.trim();
+  if (!name || !phone) {
+    alert('Isi semua field!');
+    return;
+  }
+  GA_CONTACTS.push({name, phone});
+  document.getElementById('input-ga-name').value = '';
+  document.getElementById('input-ga-phone').value = '';
+  loadKontakGA();
+  alert('✅ Kontak ditambahkan!');
+});
+
+function showDetail(report) {
+  const priorityText = report.priority === 'darurat' ? '🔴 Darurat' : report.priority === 'penting' ? '🟡 Penting' : '🟢 Biasa';
+  const statusText = report.status === 'selesai' ? '✅ Selesai' :
+                    report.status === 'perbaikan' ? '🔧 Perbaikan' :
+                    report.status === 'ditinjau' ? '👁️ Ditinjau' : '📝 Laporan';
+  
+  const categoryLabels = {
+    ac: '❄️ AC', listrik: '⚡ Listrik', plumbing: '💧 Plumbing',
+    furniture: '🪑 Furniture', mesin: '⚙️ Mesin', bangunan: '🏗️ Bangunan',
+    elektronik: '📺 Elektronik', kebersihan: '🧹 Kebersihan', lainnya: '📦 Lainnya'
+  };
+  
+  document.getElementById('detail-content').innerHTML = `
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-2xl font-bold mb-2">${report.title}</h3>
+        <div class="flex gap-2 mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${statusText}</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${priorityText}</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">${categoryLabels[report.category]}</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="text-xs font-bold text-slate-500">Pelapor</label><p class="font-medium">${report.reporterName}</p></div>
+        <div><label class="text-xs font-bold text-slate-500">Outlet</label><p class="font-medium">${report.outlet}</p></div>
+        <div><label class="text-xs font-bold text-slate-500">Lokasi</label><p class="font-medium">${report.location || '-'}</p></div>
+        <div><label class="text-xs font-bold text-slate-500">Tanggal</label><p class="font-medium">${report.reportDate || '-'}</p></div>
+        ${report.teknisi ? `<div><label class="text-xs font-bold text-slate-500">Teknisi</label><p class="font-medium">${report.teknisi}</p></div>` : ''}
+      </div>
+      <div><label class="text-xs font-bold text-slate-500">Deskripsi</label><p class="mt-2 p-4 bg-slate-50 rounded-lg">${report.description}</p></div>
+    </div>
+  `;
+  document.getElementById('modal-detail').classList.remove('hidden');
+}
+
+function loadData() {
+  db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reports')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot((snap) => {
+      reports = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      updateStats();
+      renderReports();
+      document.getElementById('status-text').textContent = '✅ Terhubung - Total: ' + reports.length + ' laporan';
+    }, (err) => {
+      console.error(err);
+      document.getElementById('status-text').textContent = '❌ Error: ' + err.message;
+    });
+}
+
+function updateStats() {
+  let filtered = reports;
+  
+  if (viewMode === 'outlet' && currentFilter) {
+    filtered = reports.filter(r => r.outletCode === currentFilter);
+  } else if (viewMode === 'maintenance' && currentHub !== 'all') {
+    filtered = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === currentHub;
+    });
+  }
+  
+  document.getElementById('stat-total').textContent = filtered.length;
+  document.getElementById('stat-laporan').textContent = filtered.filter(r => r.status === 'laporan').length;
+  document.getElementById('stat-ditinjau').textContent = filtered.filter(r => r.status === 'ditinjau').length;
+  document.getElementById('stat-perbaikan').textContent = filtered.filter(r => r.status === 'perbaikan').length;
+  document.getElementById('stat-selesai').textContent = filtered.filter(r => r.status === 'selesai').length;
+}
+
+function renderReports() {
+  let filtered = reports;
+  
+  if (viewMode === 'outlet' && currentFilter) {
+    filtered = reports.filter(r => r.outletCode === currentFilter);
+  } else if (viewMode === 'maintenance' && currentHub !== 'all') {
+    filtered = reports.filter(r => {
+      const outlet = OUTLETS.find(o => o.code === r.outletCode);
+      return outlet && outlet.hub === currentHub;
+    });
+  }
+  
+  if (filtered.length === 0) {
+    document.getElementById('reports-container').innerHTML = `
+      <div class="bg-white p-20 rounded-2xl text-center border-2 border-dashed border-blue-200">
+        <div class="text-6xl mb-4">🔧</div>
+        <h3 class="text-xl font-bold mb-2 text-blue-900">Belum ada laporan perbaikan</h3>
+        <p class="text-slate-600">Sistem siap menerima laporan kerusakan</p>
+      </div>`;
+    return;
+  }
+
+  const html = filtered.map(r => {
+    const priorityBadge = r.priority === 'darurat' ? '🔴 DARURAT' : r.priority === 'penting' ? '🟡 PENTING' : '🟢 BIASA';
+    const priorityColor = r.priority === 'darurat' ? 'bg-red-100 text-red-700 border-red-300' :
+                         r.priority === 'penting' ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-green-100 text-green-700 border-green-300';
+    const statusClass = r.status === 'selesai' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
+                       r.status === 'perbaikan' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                       r.status === 'ditinjau' ? 'bg-amber-100 text-amber-700 border-amber-300' : 'bg-orange-100 text-orange-700 border-orange-300';
+    const statusText = r.status === 'selesai' ? '✅ SELESAI' :
+                      r.status === 'perbaikan' ? '🔧 PERBAIKAN' :
+                      r.status === 'ditinjau' ? '👁️ DITINJAU' : '📝 BARU';
+    
+    let buttons = '';
+    if (isMaintenanceMode) {
+      if (r.status === 'laporan') {
+        buttons = `
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t">
+            <button onclick="updateStatus('${r.id}','ditinjau')" class="bg-amber-600 text-white py-2 rounded-lg text-sm font-bold">Tinjau</button>
+            <button onclick="assignTeknisi('${r.id}')" class="bg-purple-600 text-white py-2 rounded-lg text-sm font-bold">Assign</button>
+          </div>`;
+      } else if (r.status === 'ditinjau') {
+        buttons = `
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t">
+            <button onclick="updateStatus('${r.id}','perbaikan')" class="bg-blue-600 text-white py-2 rounded-lg text-sm font-bold">Mulai</button>
+            <button onclick="assignTeknisi('${r.id}')" class="bg-purple-600 text-white py-2 rounded-lg text-sm font-bold">Assign</button>
+          </div>`;
+      } else if (r.status === 'perbaikan') {
+        buttons = `
+          <button onclick="updateStatus('${r.id}','selesai')" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-sm font-bold mt-3">✅ Selesai</button>`;
+      }
+    }
+    
+    const reportJson = JSON.stringify(r).replace(/"/g, '&quot;');
+    
+    return `
+      <div class="bg-white rounded-2xl border-2 border-blue-100 shadow-md p-5 card-hover cursor-pointer" onclick='showDetail(${reportJson})'>
+        <div class="flex justify-between mb-3">
+          <span class="text-xs font-black px-3 py-1.5 rounded-full border-2 ${statusClass}">${statusText}</span>
+          <span class="text-xs font-black px-3 py-1 rounded-lg border-2 ${priorityColor}">${priorityBadge}</span>
+        </div>
+        <h3 class="font-black text-lg mb-2 text-blue-900">${r.title}</h3>
+        <p class="text-sm text-slate-600 mb-3">${r.description.substring(0,100)}...</p>
+        <div class="text-xs space-y-1 text-slate-600 font-medium">
+          <div>👤 ${r.reporterName}</div>
+          <div>📍 ${r.outlet}</div>
+          <div>📅 ${r.reportDate || '-'}</div>
+          ${r.teknisi ? `<div>👷 ${r.teknisi}</div>` : ''}
+        </div>
+        ${buttons}
+      </div>`;
+  }).join('');
+  
+  document.getElementById('reports-container').innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">' + html + '</div>';
+}
+
+function updateStatus(id, status) {
+  event.stopPropagation();
+  if (!confirm(`Ubah status menjadi "${status}"?`)) return;
+  db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reports').doc(id)
+    .update({status: status, updatedAt: firebase.firestore.FieldValue.serverTimestamp()})
+    .catch(err => alert('Error: ' + err.message));
+}
+
+function assignTeknisi(id) {
+  event.stopPropagation();
+  const teknisi = prompt('Nama teknisi:');
+  if (!teknisi) return;
+  db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reports').doc(id)
+    .update({teknisi: teknisi, updatedAt: firebase.firestore.FieldValue.serverTimestamp()})
+    .catch(err => alert('Error: ' + err.message));
+}
+
+document.getElementById('form-report').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const code = document.getElementById('select-outlet').value;
+  if (!code) {
+    alert('Pilih outlet!');
+    return;
+  }
+  const outlet = OUTLETS.find(o => o.code === code);
+  
+  const data = {
+    title: document.getElementById('input-title').value,
+    description: document.getElementById('input-desc').value,
+    reporterName: document.getElementById('input-name').value,
+    outlet: `${outlet.code} - ${outlet.name}`,
+    outletCode: outlet.code,
+    outletHub: outlet.hub,
+    category: document.getElementById('select-category').value,
+    priority: document.getElementById('input-priority').value,
+    location: document.getElementById('input-location').value,
+    reportDate: new Date().toISOString().split('T')[0],
+    status: 'laporan',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  
+  db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reports').add(data)
+    .then(() => {
+      alert('✅ Laporan berhasil dikirim!');
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('form-report').reset();
+      document.getElementById('input-date').value = new Date().toLocaleDateString('id-ID');
+    })
+    .catch(err => alert('❌ Gagal: ' + err.message));
+});
+
+// Mode
+document.getElementById('btn-outlet').addEventListener('click', () => {
+  isMaintenanceMode = false;
+  viewMode = 'outlet';
+  document.getElementById('btn-outlet').className = 'flex-1 py-4 rounded-lg font-black text-lg gradient-bg text-white';
+  document.getElementById('btn-maintenance').className = 'flex-1 py-4 rounded-lg font-black text-lg bg-slate-100 text-slate-600';
+  document.getElementById('create-btn-container').classList.remove('hidden');
+  document.getElementById('filter-container').classList.remove('hidden');
+  document.getElementById('hub-tabs').classList.add('hidden');
+  renderReports();
+  updateStats();
+});
+
+document.getElementById('btn-maintenance').addEventListener('click', () => {
+  if (!isMaintenanceMode) {
+    document.getElementById('modal-password').classList.remove('hidden');
+  }
+});
+
+document.getElementById('btn-cancel-password').addEventListener('click', () => {
+  document.getElementById('modal-password').classList.add('hidden');
+  document.getElementById('input-password').value = '';
+});
+
+document.getElementById('select-outlet-filter').addEventListener('change', (e) => {
+  currentFilter = e.target.value;
+  renderReports();
+  updateStats();
+});
+
+// Modals
+document.getElementById('btn-create').addEventListener('click', () => document.getElementById('modal').classList.remove('hidden'));
+document.getElementById('btn-close-modal').addEventListener('click', () => document.getElementById('modal').classList.add('hidden'));
+document.getElementById('btn-cancel').addEventListener('click', () => document.getElementById('modal').classList.add('hidden'));
+document.getElementById('btn-close-detail').addEventListener('click', () => document.getElementById('modal-detail').classList.add('hidden'));
+document.getElementById('btn-kontak-ga').addEventListener('click', () => {
+  document.getElementById('modal-kontak').classList.remove('hidden');
+  loadKontakGA();
+});
+document.getElementById('btn-close-kontak').addEventListener('click', () => document.getElementById('modal-kontak').classList.add('hidden'));
+document.getElementById('btn-teknisi').addEventListener('click', () => document.getElementById('modal-teknisi').classList.remove('hidden'));
+document.getElementById('btn-close-teknisi').addEventListener('click', () => document.getElementById('modal-teknisi').classList.add('hidden'));
+document.getElementById('btn-riwayat').addEventListener('click', () => document.getElementById('modal-riwayat').classList.remove('hidden'));
+document.getElementById('btn-close-riwayat').addEventListener('click', () => document.getElementById('modal-riwayat').classList.add('hidden'));
+document.getElementById('btn-performa').addEventListener('click', showPerformance);
+document.getElementById('btn-close-performa').addEventListener('click', () => document.getElementById('modal-performa').classList.add('hidden'));
+
+populateFilterDropdown();
+loadData();
+</script>
+
+</body>
+</html>
